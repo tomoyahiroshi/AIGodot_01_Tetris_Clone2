@@ -301,10 +301,10 @@ func try_rotate(direction: int) -> void:
 	var to := (current_rotation + direction + 4) % 4
 	var key := "%d_%d" % [from, to]
 	var kick_table = KICKS_I if current_piece == "I" else KICKS_JLSTZ
-	var kicks: Array = kick_table.get(key, [Vector2i.ZERO])
+	var kicks: Array[Vector2i] = kick_table.get(key, [Vector2i.ZERO])
 
-	for offset: Vector2i in kicks:
-		var target_pos: Vector2i = current_pos + offset
+	for offset in kicks:
+		var target_pos := current_pos + offset
 		if can_place(target_pos, to):
 			current_pos = target_pos
 			current_rotation = to
@@ -315,8 +315,9 @@ func try_rotate(direction: int) -> void:
 			return
 
 func can_place(pos: Vector2i, rotation: int) -> bool:
-	for cell: Vector2i in PIECE_SHAPES[current_piece][rotation]:
-		var board_pos: Vector2i = pos + cell
+	var piece_cells: Array[Vector2i] = PIECE_SHAPES[current_piece][rotation]
+	for cell in piece_cells:
+		var board_pos := pos + cell
 		if board_pos.x < 0 or board_pos.x >= BOARD_WIDTH:
 			return false
 		if board_pos.y < 0 or board_pos.y >= BOARD_HEIGHT:
@@ -326,8 +327,9 @@ func can_place(pos: Vector2i, rotation: int) -> bool:
 	return true
 
 func lock_piece() -> void:
-	for cell: Vector2i in PIECE_SHAPES[current_piece][current_rotation]:
-		var board_pos: Vector2i = current_pos + cell
+	var piece_cells: Array[Vector2i] = PIECE_SHAPES[current_piece][current_rotation]
+	for cell in piece_cells:
+		var board_pos := current_pos + cell
 		if board_pos.y >= 0 and board_pos.y < BOARD_HEIGHT:
 			board[board_pos.y][board_pos.x] = PIECE_TYPES.find(current_piece)
 	clear_lines()
@@ -392,7 +394,7 @@ func _draw() -> void:
 		for x in BOARD_WIDTH:
 			var cell_id: int = board[y][x]
 			if cell_id == EMPTY:
-				draw_rect(Rect2(Vector2(BOARD_OFFSET) + Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE)), Color("#1b1b1b"), false, 1.0)
+				draw_rect(Rect2(BOARD_OFFSET.to_vector2() + Vector2(x * CELL_SIZE, y * CELL_SIZE), Vector2(CELL_SIZE, CELL_SIZE)), Color("#1b1b1b"), false, 1.0)
 				continue
 			var piece_name: String = PIECE_TYPES[cell_id]
 			draw_block(Vector2i(x, y), PIECE_COLORS[piece_name])
@@ -404,7 +406,7 @@ func _draw() -> void:
 			draw_block(cell, PIECE_COLORS[current_piece])
 
 func draw_block(board_pos: Vector2i, color: Color) -> void:
-	var pixel_pos: Vector2 = Vector2(BOARD_OFFSET) + Vector2(board_pos.x * CELL_SIZE, board_pos.y * CELL_SIZE)
+	var pixel_pos := BOARD_OFFSET.to_vector2() + Vector2(board_pos.x * CELL_SIZE, board_pos.y * CELL_SIZE)
 	draw_rect(Rect2(pixel_pos, Vector2(CELL_SIZE, CELL_SIZE)), color, true)
 	draw_rect(Rect2(pixel_pos, Vector2(CELL_SIZE, CELL_SIZE)), Color.BLACK, false, 1.0)
 
